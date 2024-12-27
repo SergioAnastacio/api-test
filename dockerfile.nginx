@@ -1,0 +1,15 @@
+# Usa una imagen base oficial de Nginx
+FROM nginx:alpine
+
+# Copia la configuración de Nginx
+COPY ./docker/nginx/conf.d/ /etc/nginx/conf.d/
+
+# Copia los archivos de la aplicación
+COPY . /var/www/html
+
+# Establece los permisos correctos
+RUN chown -R nginx:nginx /var/www/html
+
+# Exponer los puertos necesarios
+EXPOSE 80
+EXPOSE 443

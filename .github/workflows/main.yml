@@ -1,0 +1,82 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - develop_main
+      - setup-cicd
+  pull_request:
+    branches:
+      - develop_main
+
+jobs:
+  lint-and-format:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        tools: php-cs-fixer,composer
+
+    - name: Install dependencies
+      run: composer install
+
+    - name: Check code format
+      run: php-cs-fixer fix --diff .
+
+    - name: Fix code format
+      run: php-cs-fixer fix .
+
+  build:
+    runs-on: ubuntu-latest
+    needs:  [ lint-and-format]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install Docker
+      run: |
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sh get-docker.sh
+
+    - name: set repository name variable
+      run: echo "REPO_NAME=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GHCR_TOKEN }}
+
+    - name: Copy .env file
+      run: cp .env.example .env
+
+    - name: Build and tag Docker image
+      run: |
+        docker build -t ghcr.io/${{ env.REPO_NAME }}/sa-api:${{ github.sha }} -t ghcr.io/${{ env.REPO_NAME }}/sa-api:latest .
+        docker build -f dockerfile.nginx -t ghcr.io/${{ env.REPO_NAME }}/sa-api-nginx:${{ github.sha }} -t ghcr.io/${{ env.REPO_NAME }}/sa-api-nginx:latest .
+
+    - name: Push Docker image
+      if: github.ref == 'refs/heads/develop_main'
+      run: |
+        docker push ghcr.io/${{ env.REPO_NAME }}/sa-api --all-tags
+        docker push ghcr.io/${{ env.REPO_NAME }}/sa-api-nginx --all-tags
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop_main'
+    steps:
+    - name: Trigger deploy workflow in infrastructure repository
+      uses: peter-evans/repository-dispatch@v1
+      with:
+        token: ${{ secrets.PAT }}
+        repository: SergioAnastacio/isc-sa-api-test
+        event-type: apideploy
