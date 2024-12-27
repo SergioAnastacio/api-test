@@ -14,7 +14,5 @@ Route::get('up', function () {
 });
 
 //! use bearer token to access this route
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('user', [UserController::class, 'show']);
-    Route::apiResource('products', ProductController::class);
-});
+Route::get('user', [UserController::class, 'show'])->middleware('auth:sanctum');
+Route::apiResource('products', ProductController::class)->middleware('auth:sanctum');
