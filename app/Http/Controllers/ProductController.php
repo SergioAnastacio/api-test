@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\ProductRequest;
+use App\Http\Resources\ProductCollection;
+use App\Http\Resources\ProductResource;
 use App\Jobs\ProcessProductImages;
 use App\Models\Product;
-use App\Http\Resources\ProductCollection;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use App\Http\Requests\ProductRequest;
-use App\Http\Resources\ProductResource;
 
 //* Important: using custom request 'productRequest'
 
@@ -16,7 +16,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-       $perPage = $request->input('perpage', 5); // Parámetro opcional para paginación, por defecto 5
+        $perPage = $request->input('perpage', 5); // Parámetro opcional para paginación, por defecto 5
         $page = $request->input('page', 1); // Parámetro opcional para la página, por defecto es 1
 
         $products = Cache::remember('product_index', 60, function () {
@@ -42,7 +42,7 @@ class ProductController extends Controller
         //* Important: On job dispatch, canot use serialize objects
         $product = Product::create($request->only(['name', 'price', 'qty']));
 
-       $imagePaths = [];
+        $imagePaths = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('images', 'public');
@@ -52,7 +52,7 @@ class ProductController extends Controller
 
 
 
-        processProductImages::dispatch($product, $imagePaths,$request->input('urls',[]));
+        processProductImages::dispatch($product, $imagePaths, $request->input('urls', []));
 
 
         return response()->json(['message' => 'Product creation in progress'], 202); //* return ACK
@@ -63,7 +63,7 @@ class ProductController extends Controller
 
 
         $product=Product::find($id);
-        if(!$product){
+        if (!$product) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Product not found',
@@ -78,7 +78,7 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product=Product::find($id);
-        if(!$product){
+        if (!$product) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Product not found',
@@ -86,13 +86,13 @@ class ProductController extends Controller
         }
         $product->delete();
         Cache::forget('product_index');
-        return response()->json(null,204); //* no content
+        return response()->json(null, 204); //* no content
     }
     //! to Implement the restore method set patch method to /products/{id}/restore
     public function restore($id)
     {
         $product=Product::withTrashed()->find($id);
-        if(!$product){
+        if (!$product) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Product not found',
@@ -100,6 +100,6 @@ class ProductController extends Controller
         }
         $product->restore();
         Cache::forget('product_index');
-        return response()->json(null,200); //* 200 means OK
+        return response()->json(null, 200); //* 200 means OK
     }
 }

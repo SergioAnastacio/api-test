@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
@@ -21,7 +20,7 @@ class AuthTest extends TestCase
         ]);
 
 
-        $response = $this->post('/api/login',[
+        $response = $this->post('/api/login', [
             'email' => 'admin@digitalife.com.mx',
             'password' => 'digitalife',
         ]);

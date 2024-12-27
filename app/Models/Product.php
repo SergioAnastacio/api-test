@@ -21,6 +21,6 @@ class Product extends Model
     //* relationship with productImages model
     public function images()
     {
-        return $this->hasMany(productImages::class,'product_id');
+        return $this->hasMany(productImages::class, 'product_id');
     }
 }

@@ -18,8 +18,7 @@ class GzipCompressMiddleware
         $response=$next($request);
         //* Gzip compress implementation
         if ($response instanceof Response && $request->header('Accept-Encoding') &&
-            strpos($request->header('Accept-Encoding'), 'gzip') !== false)
-        {
+            strpos($request->header('Accept-Encoding'), 'gzip') !== false) {
             $response->headers->set('Content-Encoding', 'gzip');
             $response->setContent(gzencode($response->getContent(), 8, FORCE_GZIP));
         }

@@ -22,6 +22,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //* Important :  Register the middleware on api routes
-        Route::middlewareGroup('api',[GzipCompressMiddleware::class]);
+        Route::middlewareGroup('api', [GzipCompressMiddleware::class]);
     }
 }

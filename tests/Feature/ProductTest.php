@@ -4,15 +4,11 @@ namespace Tests\Feature;
 
 use App\Models\product;
 use App\Models\User;
-use App\Models\productImages;
-use App\Http\Resources\ProductCollection;
-use App\Http\Resources\ProductImageResource;
-use App\Http\Resources\ProductResource;
-use App\Http\Requests\ProductRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 
 use Tests\TestCase;
+
 /**
  * @group exclude
  */
@@ -57,7 +53,7 @@ class ProductTest extends TestCase
         $token=$user->createToken('test')->plainTextToken;
         $response=$this->withHeaders([
             'Authorization' => 'Bearer '.$token,
-        ])->post('/api/products',[
+        ])->post('/api/products', [
             'name' => 'Product test',
             'price' => 100,
             'qty' => 10,
