@@ -13,6 +13,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ProcessProductImages implements ShouldQueue
 {
@@ -44,7 +45,7 @@ class ProcessProductImages implements ShouldQueue
                     ProductImages::create([
                         'product_id' => $this->product->id,
                         'original_url' => $path,
-                        'url' => $path,
+                        'url' => asset('storage/' . $path),
                     ]);
                 }
                 Cache::forget('product_index');
@@ -58,7 +59,7 @@ class ProcessProductImages implements ShouldQueue
                         ProductImages::create([
                             'product_id' => $this->product->id,
                             'original_url' => $url,
-                            'url' => $storedPath,
+                            'url' => asset('storage/' . $storedPath),
                         ]);
                     }
                 }

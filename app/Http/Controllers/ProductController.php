@@ -30,10 +30,10 @@ class ProductController extends Controller
     }
     public function show($id)
     {
-        //$product = Product::with('images')->find($id); 2.15s
-        //* Important: Using cache to improve performance 1.5s
-        $product=Cache::get('product_index');
-        $product=$product->find($id);
+        $product = Product::withTrashed()->with('images')->find($id);
+        if ($product === null || $product->trashed()) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
 
         return new ProductResource($product);
     }
