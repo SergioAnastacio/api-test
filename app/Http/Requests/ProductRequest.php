@@ -21,15 +21,22 @@ class ProductRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-        'name' => ['required', 'string'],
-        'price' => ['required', 'numeric'],
-        'qty' => ['required', 'integer'],
-        'urls' => ['nullable','array', 'max:5'],
-        'urls.*'=>[ 'url'],
-        'images' => ['nullable', 'array', 'max:5'],
-        'images.*' => ['image', 'mimes:jpeg,png,jpg,gif,svg', 'max:20048'],
+        $rules = [
+            'name' => ['required', 'string'],
+            'price' => ['required', 'numeric'],
+            'qty' => ['required', 'integer'],
+            'urls' => ['nullable', 'array', 'max:5'],
+            'urls.*' => ['nullable', 'url'],
+            'images' => ['nullable', 'array', 'max:5'],
+            'images.*' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+        ];
 
-    ];
+        if ($this->isMethod('patch') || $this->isMethod('put')) {
+            $rules['name'] = ['sometimes', 'string'];
+            $rules['price'] = ['sometimes', 'numeric'];
+            $rules['qty'] = ['sometimes', 'integer'];
+        }
+
+        return $rules;
     }
 }

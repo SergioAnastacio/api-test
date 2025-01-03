@@ -59,9 +59,6 @@ class ProductController extends Controller
     }
     public function update(Request $request, $id)
     {
-
-
-
         $product=Product::find($id);
         if (!$product) {
             return response()->json([
@@ -69,8 +66,8 @@ class ProductController extends Controller
                 'message' => 'Product not found',
             ]);
         }
-
         $product->update($request->only(['name', 'price', 'qty']));
+
         Cache::forget('product_index');
 
         return response()->json($product, 200); //* OK
